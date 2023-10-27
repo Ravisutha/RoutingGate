@@ -6,6 +6,8 @@ from peft import PeftModel
 from routing_model import Routing, load_model
 
 gpt_tokenizer = AutoTokenizer.from_pretrained("gpt2")
+max_len =gpt_tokenizer.model_max_length
+
 
 def load_models(
     base_model_path,
@@ -25,7 +27,7 @@ def load_models(
        bnb_4bit_use_double_quant=True,
        bnb_4bit_compute_dtype=torch.bfloat16
     )
-    
+
     with torch.cuda.device(device):
         base_model = AutoModelForCausalLM.from_pretrained(
             base_model_path,
@@ -53,6 +55,7 @@ def load_models(
 
     return target_map
 
+
 def get_model(model_map, tokenizer, prompt, params, device="cuda:0"):
     model_lookup = {
         0: "bbq",
@@ -63,7 +66,6 @@ def get_model(model_map, tokenizer, prompt, params, device="cuda:0"):
     temp = gpt_tokenizer(prompt, return_tensors="pt")
     temp = {k: v.to(device) for k, v in temp.items()}
 
-    model_name = model_lookup[model_map["routing"](temp["input_ids"]).top_gate.item()]
-    print(model_name)
+    model_name = model_lookup[model_map["routing"](temp["input_ids"][:max_len]).top_gate.item()]
 
     return model_map[model_name]
