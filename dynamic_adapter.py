@@ -46,7 +46,7 @@ def load_models(
     routing.eval()
 
     target_map = {
-        "base": base_model,
+        "others": base_model,
         "bbq": PeftModel.from_pretrained(base_model, bbq_adapter_path, device_map={"": device}),
         "cnn": PeftModel.from_pretrained(base_model, cnn_adapter_path, device_map={"": device}),
         "math": PeftModel.from_pretrained(base_model, math_adapter_path, device_map={"": device}),
